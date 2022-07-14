@@ -28,13 +28,13 @@ const addFilter = (pipeline: PipelineType, filter: FilterType) => {
 }
 
 const buildPipeline = (pipeline: PipelineType, params: Params) => {
-    if(params.caseSensitive !== undefined && !params.caseSensitive) {
+    if (params.caseSensitive !== undefined && !params.caseSensitive) {
         addFilter(pipeline, (text) => text.toLowerCase());
     }
-    if(params.spaces !== undefined && !params.spaces) {
+    if (params.spaces !== undefined && !params.spaces) {
         addFilter(pipeline, (text) => text.replace(" ", ""))
     }
-    if(params.accents !== undefined && !params.accents) {
+    if (params.accents !== undefined && !params.accents) {
         addFilter(pipeline, (text) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, ""))
     }
 }
@@ -44,9 +44,14 @@ const runPipeline = (pipeline: PipelineType, text: string) => {
     return text;
 }
 
-export const search = (list: string[], pat: string, params: Params = {caseSensitive: true, spaces: true, accents: true}) => {
-    let pipeline = []
+export const search = <T>(
+    list: T[],
+    getValue: (t: T) => string,
+    pat: string,
+    params: Params = { caseSensitive: true, spaces: true, accents: true }
+) => {
+    let pipeline: PipelineType = []
     buildPipeline(pipeline, params);
     pat = runPipeline(pipeline, pat);
-    return list.filter(elem => searchInString(runPipeline(pipeline, elem), pat))
+    return list.filter(elem => searchInString(runPipeline(pipeline, getValue(elem)), pat))
 }
